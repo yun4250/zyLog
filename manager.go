@@ -52,7 +52,7 @@ func (zy *ZyLogger) SetLevelStrategy(l LevelStrategy) *ZyLogger {
 	return zy
 }
 
-func (zy *ZyLogger) GetChild(prefix string) *ChildLogger {
+func (zy *ZyLogger) GetChild(prefix string, position string) *ChildLogger {
 	zy.Lock()
 	defer zy.Unlock()
 	if zy.FileName == "" {
@@ -65,7 +65,7 @@ func (zy *ZyLogger) GetChild(prefix string) *ChildLogger {
 	}
 }
 
-func (zy *ZyLogger) GetChildWithPid(prefix string, pid int) *ChildLogger {
+func (zy *ZyLogger) GetChildWithPid(prefix string, pid int, position string) *ChildLogger {
 	prefix = fmt.Sprintf("%s[%d]", prefix, pid)
 	zy.Lock()
 	defer zy.Unlock()
