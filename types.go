@@ -46,10 +46,11 @@ type prefixInfo struct {
 }
 
 type ChildLogger struct {
-	Manager *ZyLogger
-	Prefix  string
-	id      int
-	loggers []*log.Logger
+	Manager  *ZyLogger
+	Prefix   string
+	Position string
+	id       int
+	loggers  []*log.Logger
 }
 
 type ZyLogger struct {
@@ -72,13 +73,5 @@ type ZyLogger struct {
 	fileTime  time.Time
 
 	sync.RWMutex
-}
-
-func LevelToIndex(l Level) (index int8) {
-	if l >= Fatal && l <= Trace {
-		return int8(l + 4)
-	} else {
-		return LevelToIndex(Info)
-	}
 }
 

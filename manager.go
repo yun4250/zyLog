@@ -6,7 +6,78 @@ import (
 	"path/filepath"
 	"strings"
 	"log"
+	"fmt"
 )
+
+func NewManager(fileName string) *ZyLogger {
+	zy := &ZyLogger{
+		FileName:        fileName,
+		Directory:       "",
+		Level:           Info,
+		LevelStrategy:   NoneIsolation,
+		MaxKeepDuration: 0,
+		Duration:        0,
+	}
+	zy.initPi()
+	zy.initLevelInfo()
+	return zy
+}
+
+func NewManagerInDir(fileName string, directory string) *ZyLogger {
+	zy := &ZyLogger{
+		FileName:        fileName,
+		Directory:       directory,
+		Level:           Info,
+		LevelStrategy:   NoneIsolation,
+		MaxKeepDuration: 0,
+		Duration:        0,
+	}
+	zy.initPi()
+	zy.initLevelInfo()
+	return zy
+}
+
+func (zy *ZyLogger) SetLevel(l Level) *ZyLogger {
+	zy.Lock()
+	defer zy.Unlock()
+	zy.Level = l
+	return zy
+}
+
+func (zy *ZyLogger) SetLevelStrategy(l LevelStrategy) *ZyLogger {
+	zy.Lock()
+	zy.LevelStrategy = l
+	zy.Unlock()
+	zy.initLevelInfo()
+	return zy
+}
+
+func (zy *ZyLogger) GetChild(prefix string) *ChildLogger {
+	zy.Lock()
+	defer zy.Unlock()
+	if zy.FileName == "" {
+		Panic("zyLogger.FileName can not be empty")
+	}
+	return &ChildLogger{
+		Manager: zy,
+		Prefix:  prefix,
+		id:      zy.AddPrefix(prefix),
+	}
+}
+
+func (zy *ZyLogger) GetChildWithPid(prefix string, pid int) *ChildLogger {
+	prefix = fmt.Sprintf("%s[%d]", prefix, pid)
+	zy.Lock()
+	defer zy.Unlock()
+	if zy.FileName == "" {
+		Panic("zyLogger.FileName can not be empty")
+	}
+	return &ChildLogger{
+		Manager: zy,
+		Prefix:  prefix,
+		id:      zy.AddPrefix(prefix),
+	}
+}
 
 //write lock
 func (l *ZyLogger) initLevelInfo() {

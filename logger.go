@@ -1,85 +1,125 @@
 package zylog
 
 import (
-	"log"
 	"fmt"
+	"strings"
+	"log"
 )
 
-func NewManager(fileName string) *ZyLogger {
-	zy := &ZyLogger{
-		FileName:        fileName,
-		Directory:       "",
-		Level:           Info,
-		LevelStrategy:   NoneIsolation,
-		MaxKeepDuration: 0,
-		Duration:        0,
+func (cl *ChildLogger) GetLogger(position string) *ChildLogger {
+	ano := &ChildLogger{
+		Manager:  cl.Manager,
+		Prefix:   cl.Prefix,
+		Position: position,
+		id:       cl.id,
+		loggers:  cl.loggers,
 	}
-	zy.initPi()
-	zy.initLevelInfo()
-	return zy
+	return ano
 }
 
-func NewManager2(fileName string, directory string) *ZyLogger {
-	zy := &ZyLogger{
-		FileName:        fileName,
-		Directory:       directory,
-		Level:           Info,
-		LevelStrategy:   NoneIsolation,
-		MaxKeepDuration: 0,
-		Duration:        0,
+func (cl *ChildLogger)  positionStr() string {
+	if cl.Position == "" {
+		return ""
 	}
-	zy.initPi()
-	zy.initLevelInfo()
-	return zy
+	return cl.Position + ": "
 }
 
-func (zy *ZyLogger) SetLevel(l Level) *ZyLogger {
-	zy.Lock()
-	defer zy.Unlock()
-	zy.Level = l
-	return zy
-}
-
-func (zy *ZyLogger) SetLevelStrategy(l LevelStrategy) *ZyLogger {
-	zy.Lock()
-	zy.LevelStrategy = l
-	zy.Unlock()
-	zy.initLevelInfo()
-	return zy
-}
-
-func (zy *ZyLogger) GetChild(prefix string) *ChildLogger {
-	zy.Lock()
-	defer zy.Unlock()
-	if zy.FileName == "" {
-		Panic("zyLogger.FileName can not be empty")
-	}
-	return &ChildLogger{
-		Manager: zy,
-		Prefix:  prefix,
-		id:      zy.AddPrefix(prefix),
-	}
-}
-
-func (zy *ZyLogger) GetChildWithPid(prefix string, pid int) *ChildLogger {
-	prefix = fmt.Sprintf("[%d]%s", pid, prefix)
-	zy.Lock()
-	defer zy.Unlock()
-	if zy.FileName == "" {
-		Panic("zyLogger.FileName can not be empty")
-	}
-	return &ChildLogger{
-		Manager: zy,
-		Prefix:  prefix,
-		id:      zy.AddPrefix(prefix),
-	}
-}
-
-func (l *ChildLogger) get(i Level) *log.Logger {
-	li := l.Manager.getLogger(i)
-	if v := li.getLogger(l.id); v != nil {
+func (cl *ChildLogger) get(i Level) *log.Logger {
+	li := cl.Manager.getLogger(i)
+	if v := li.getLogger(cl.id); v != nil {
 		return v
 	} else {
-		return li.newLogger(l.id, l.Manager.prefixInfo.prefixes[l.id]+" ")
+		return li.newLogger(cl.id, cl.Manager.prefixInfo.prefixes[cl.id]+" ")
+	}
+}
+
+//panic an error of zylog.FatalError,
+//you can use Catch or CatchAndThrow to handle it
+func (l *ChildLogger) Fatalf(format string, v ...interface{}) {
+	if l.Manager.Level >= Fatal {
+		err := NewError(fmt.Errorf(format, v...))
+		l.get(Fatal).Fatalf("FATAL " + l. positionStr() + strings.Replace(err.Error(), "\n", "\n\t", -1))
+		panic(err)
+	}
+}
+
+//panic an error of zylog.FatalError,
+//you can use Catch or CatchAndThrow to handle it
+func (l *ChildLogger) Fatal(v ...interface{}) {
+	if l.Manager.Level >= Fatal {
+
+		err := NewError(fmt.Sprint(v...))
+		l.get(Fatal).Println("FATAL " + l. positionStr() + strings.Replace(err.Error(), "\n", "\n\t", -1))
+		panic(err)
+	}
+}
+
+func (l *ChildLogger) Criticalf(format string, v ...interface{}) {
+	if l.Manager.Level >= Critical {
+		body := fmt.Sprintf(format, v...)
+		l.get(Critical).Printf("CRITICAL " + l. positionStr() + strings.Replace(body, "\n", "\n\t", -1))
+	}
+}
+func (l *ChildLogger) Critical(v ...interface{}) {
+	if l.Manager.Level >= Critical {
+		body := fmt.Sprint(v...)
+		l.get(Critical).Println("CRITICAL " + l. positionStr() + strings.Replace(body, "\n", "\n\t", -1))
+	}
+}
+
+func (l *ChildLogger) Errorf(format string, v ...interface{}) {
+	if l.Manager.Level >= Error {
+		body := fmt.Sprintf(format, v...)
+		l.get(Error).Printf("ERROR " + l. positionStr() + strings.Replace(body, "\n", "\n\t", -1))
+	}
+}
+func (l *ChildLogger) Error(v ...interface{}) {
+	if l.Manager.Level >= Error {
+		body := fmt.Sprint(v...)
+		l.get(Error).Println("ERROR " + l. positionStr() + strings.Replace(body, "\n", "\n\t", -1))
+	}
+}
+
+func (l *ChildLogger) Warnf(format string, v ...interface{}) {
+	if l.Manager.Level >= Warn {
+		l.get(Warn).Printf("WARN "+l. positionStr()+format, v...)
+	}
+}
+func (l *ChildLogger) Warn(v ...interface{}) {
+	if l.Manager.Level >= Warn {
+		l.get(Warn).Println("WARN " + l. positionStr() + fmt.Sprint(v...))
+	}
+}
+
+func (l *ChildLogger) Infof(format string, v ...interface{}) {
+	if l.Manager.Level >= Info {
+		l.get(Info).Printf("INFO "+l. positionStr()+format, v...)
+	}
+}
+func (l *ChildLogger) Info(v ...interface{}) {
+	if l.Manager.Level >= Info {
+		l.get(Info).Println("INFO " + l. positionStr() + fmt.Sprint(v...))
+	}
+}
+
+func (l *ChildLogger) Debugf(format string, v ...interface{}) {
+	if l.Manager.Level >= Debug {
+		l.get(Debug).Printf("DEBUG "+l. positionStr()+format, v...)
+	}
+}
+func (l *ChildLogger) Debug(v ...interface{}) {
+	if l.Manager.Level >= Debug {
+		l.get(Debug).Println("DEBUG " + l. positionStr() + fmt.Sprint(v...))
+	}
+}
+
+func (l *ChildLogger) Tracef(format string, v ...interface{}) {
+	if l.Manager.Level >= Trace {
+		l.get(Trace).Printf("TRACE "+l. positionStr()+format, v...)
+	}
+}
+func (l *ChildLogger) Trace(v ...interface{}) {
+	if l.Manager.Level >= Trace {
+		l.get(Trace).Println("TRACE " + l. positionStr() + fmt.Sprint(v...))
 	}
 }

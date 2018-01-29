@@ -17,6 +17,14 @@ const (
 	YearFormat   = "2006"
 )
 
+func LevelToIndex(l Level) (index int8) {
+	if l >= Fatal && l <= Trace {
+		return int8(l + 4)
+	} else {
+		return LevelToIndex(Info)
+	}
+}
+
 func DurationToFormat(duration time.Duration) string {
 	if duration >= 0 && duration < time.Minute {
 		return NormalFormat
