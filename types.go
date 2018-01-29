@@ -46,9 +46,9 @@ type prefixInfo struct {
 }
 
 type ChildLogger struct {
-	Manager  *ZyLogger
-	Prefix   string
-	Position string
+	manager  *ZyLogger
+	prefix   string
+	position string
 	id       int
 	loggers  []*log.Logger
 }

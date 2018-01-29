@@ -3,18 +3,22 @@ package zylog
 import (
 	"testing"
 	"fmt"
-	"reflect"
+	"strings"
 )
 
 func TestLogger(t *testing.T) {
-	fe := NewError(fmt.Errorf("test"))
-	fmt.Println(reflect.TypeOf(fmt.Errorf("test")).Name())
-	fmt.Println(reflect.TypeOf(fe).Name())
+	position := "loading"
+	fmt.Println(strings.ToUpper(position[0:1]) + strings.ToLower(position[1:]))
 
-	fmt.Println(NewError(fe).String())
-	fmt.Println(NewError(fmt.Errorf("error")).String())
-	fmt.Println(NewError("string").String())
-	fmt.Println(NewError(123).String())
+	//fe := NewError(fmt.Errorf("test"))
+	//fmt.Println(reflect.TypeOf(fmt.Errorf("test")).Name())
+	//fmt.Println(reflect.TypeOf(fe).Name())
+	//
+	//fmt.Println(NewError(fe).String())
+	//fmt.Println(NewError(fmt.Errorf("error")).String())
+	//fmt.Println(NewError("string").String())
+	//fmt.Println(NewError(123).String())
+
 	//fmt.Printf("%s",NewError(fmt.Errorf("test error")))
 	//fmt.Printf("%s",NewError(fmt.Errorf("test error")).Error())
 	//var LoggerManager = &ZyLogger{

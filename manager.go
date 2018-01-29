@@ -10,17 +10,7 @@ import (
 )
 
 func NewManager(fileName string) *ZyLogger {
-	zy := &ZyLogger{
-		FileName:        fileName,
-		Directory:       "",
-		Level:           Info,
-		LevelStrategy:   NoneIsolation,
-		MaxKeepDuration: 0,
-		Duration:        0,
-	}
-	zy.initPi()
-	zy.initLevelInfo()
-	return zy
+	return NewManagerInDir(fileName, "")
 }
 
 func NewManagerInDir(fileName string, directory string) *ZyLogger {
@@ -31,6 +21,9 @@ func NewManagerInDir(fileName string, directory string) *ZyLogger {
 		LevelStrategy:   NoneIsolation,
 		MaxKeepDuration: 0,
 		Duration:        0,
+	}
+	if zy.FileName == "" {
+		zy.FileName = "zylog"
 	}
 	zy.initPi()
 	zy.initLevelInfo()
@@ -56,12 +49,13 @@ func (zy *ZyLogger) GetChild(prefix string, position string) *ChildLogger {
 	zy.Lock()
 	defer zy.Unlock()
 	if zy.FileName == "" {
-		Panic("zyLogger.FileName can not be empty")
+		zy.FileName = "zylog"
 	}
 	return &ChildLogger{
-		Manager: zy,
-		Prefix:  prefix,
-		id:      zy.AddPrefix(prefix),
+		manager:  zy,
+		prefix:   prefix,
+		position: position,
+		id:       zy.AddPrefix(prefix),
 	}
 }
 
@@ -70,12 +64,13 @@ func (zy *ZyLogger) GetChildWithPid(prefix string, pid int, position string) *Ch
 	zy.Lock()
 	defer zy.Unlock()
 	if zy.FileName == "" {
-		Panic("zyLogger.FileName can not be empty")
+		zy.FileName = "zylog"
 	}
 	return &ChildLogger{
-		Manager: zy,
-		Prefix:  prefix,
-		id:      zy.AddPrefix(prefix),
+		manager:  zy,
+		prefix:   prefix,
+		position: position,
+		id:       zy.AddPrefix(prefix),
 	}
 }
 
