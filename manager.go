@@ -45,7 +45,7 @@ func (zy *ZyLogger) SetLevelStrategy(l LevelStrategy) *ZyLogger {
 	return zy
 }
 
-func (zy *ZyLogger) GetChild(prefix string, position string) *ChildLogger {
+func (zy *ZyLogger) GetChild(prefix string) *ChildLogger {
 	zy.Lock()
 	defer zy.Unlock()
 	if zy.FileName == "" {
@@ -54,12 +54,11 @@ func (zy *ZyLogger) GetChild(prefix string, position string) *ChildLogger {
 	return &ChildLogger{
 		manager:  zy,
 		prefix:   prefix,
-		position: position,
 		id:       zy.AddPrefix(prefix),
 	}
 }
 
-func (zy *ZyLogger) GetChildWithPid(prefix string, pid int, position string) *ChildLogger {
+func (zy *ZyLogger) GetChildWithPid(prefix string, pid int) *ChildLogger {
 	prefix = fmt.Sprintf("%s[%d]", prefix, pid)
 	zy.Lock()
 	defer zy.Unlock()
@@ -69,7 +68,6 @@ func (zy *ZyLogger) GetChildWithPid(prefix string, pid int, position string) *Ch
 	return &ChildLogger{
 		manager:  zy,
 		prefix:   prefix,
-		position: position,
 		id:       zy.AddPrefix(prefix),
 	}
 }
