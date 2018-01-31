@@ -16,14 +16,13 @@ func (cl *ChildLogger) Manager() *ZyLogger {
 
 func (cl *ChildLogger) Position(position string) *ChildLogger {
 	position = strings.ToUpper(position[0:1]) + strings.ToLower(position[1:])
-	ano := &ChildLogger{
+	return &ChildLogger{
 		manager:  cl.manager,
 		prefix:   cl.prefix,
 		position: position,
 		id:       cl.id,
 		loggers:  cl.loggers,
 	}
-	return ano
 }
 
 func (cl *ChildLogger) positionStr() string {

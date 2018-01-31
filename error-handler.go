@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"os"
 )
 
 type FatalError struct {
@@ -52,6 +53,13 @@ func NewError(i interface{}) FatalError {
 		Type:  t,
 		Err:   e,
 		Stack: string(debug.Stack()),
+	}
+}
+
+func SafeExit() {
+	if err := recover(); err != nil {
+		Print("exit because:" + err.(error).Error())
+		os.Exit(1)
 	}
 }
 
