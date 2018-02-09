@@ -17,9 +17,9 @@ const (
 	YearFormat   = "2006"
 )
 
-func LevelToIndex(l Level) (index int8) {
+func LevelToIndex(l Level) (index int) {
 	if l >= Fatal && l <= Trace {
-		return int8(l + 4)
+		return int(l + 4)
 	} else {
 		return LevelToIndex(Info)
 	}

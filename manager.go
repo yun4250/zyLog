@@ -88,15 +88,15 @@ func (l *ZyLogger) initLevelInfo() {
 
 	li := make([]*levelInfo, 7)
 	independent := l.LevelStrategy >= ErrorIsolation && l.Level >= Error
-	li[6] = initLi(Error, l.Directory, l.FileName, independent)
+	li[2] = initLi(Error, l.Directory, l.FileName, independent)
 	independent = l.LevelStrategy >= WarnIsolation && l.Level >= Warn
-	li[5] = initLi(Warn, l.Directory, l.FileName, independent)
+	li[3] = initLi(Warn, l.Directory, l.FileName, independent)
 	independent = l.LevelStrategy >= InfoIsolation && l.Level >= Info
 	li[4] = initLi(Info, l.Directory, l.FileName, independent)
 	independent = l.LevelStrategy >= DebugIsolation && l.Level >= Debug
-	li[3] = initLi(Debug, l.Directory, l.FileName, independent)
+	li[5] = initLi(Debug, l.Directory, l.FileName, independent)
 	independent = l.LevelStrategy >= TraceIsolation && l.Level == Trace
-	li[2] = initLi(Trace, l.Directory, l.FileName, independent)
+	li[6] = initLi(Trace, l.Directory, l.FileName, independent)
 	independent = l.LevelStrategy >= EachIsolation && l.Level >= Critical
 	li[1] = initLi(Critical, l.Directory, l.FileName, independent)
 	independent = l.LevelStrategy >= NoneIsolation && l.Level >= Fatal
