@@ -4,37 +4,31 @@ import (
 	"log"
 	"os"
 	"sync"
+	"path/filepath"
 )
 
-var debugStdout = false
-var stdoutLogger *log.Logger
-var soLock sync.RWMutex
-
-func isStdOutEmpty() bool {
-	soLock.RLock()
-	defer soLock.RUnlock()
-	return stdoutLogger == nil
-}
+var UseStdout = false
+var DebugPrint = false
+var stdoutLogger = log.New(os.Stdout, "", log.LstdFlags)
+var soLock sync.Mutex
+var ok = false
 
 func stdout() *log.Logger {
-	if isStdOutEmpty() {
+	if !UseStdout && !ok {
 		soLock.Lock()
 		defer soLock.Unlock()
-		stdoutLogger = log.New(OpenOrCreate("stdout"), "", log.LstdFlags)
+		absPath, _ := filepath.Abs("stdout")
+		if file, e := os.OpenFile(absPath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0777); e == nil {
+			stdoutLogger.SetOutput(file)
+			ok = true
+			if DebugPrint {
+				stdoutLogger.Printf("OpenFile success: %s\n", absPath)
+			}
+		} else {
+			stdoutLogger.Printf("OpenFile failed: %s\n", e.Error())
+		}
 	}
 	return stdoutLogger
-}
-
-func UseSystemOutput() {
-	stdout().SetOutput(os.Stdout)
-}
-
-func OpenPrintDebug() {
-	debugStdout = true
-}
-
-func ClosePrintDebug() {
-	debugStdout = false
 }
 
 func Panic(format string, a ...interface{}) {
@@ -47,7 +41,7 @@ func Print(format string, a ...interface{}) {
 }
 
 func PrintDebug(format string, a ...interface{}) {
-	if debugStdout {
+	if DebugPrint {
 		stdout().Printf(format, a...)
 	}
 }

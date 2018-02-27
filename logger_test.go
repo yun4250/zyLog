@@ -2,13 +2,15 @@ package zylog
 
 import (
 	"testing"
-	"fmt"
-	"strings"
 )
 
 func TestLogger(t *testing.T) {
-	position := "loading"
-	fmt.Println(strings.ToUpper(position[0:1]) + strings.ToLower(position[1:]))
+	dz = true
+	Print("test")
+	//PrintDebug("debug")
+
+	//position := "loading"
+	//fmt.Println(strings.ToUpper(position[0:1]) + strings.ToLower(position[1:]))
 
 	//fe := NewError(fmt.Errorf("test"))
 	//fmt.Println(reflect.TypeOf(fmt.Errorf("test")).Name())
